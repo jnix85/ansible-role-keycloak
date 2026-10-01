@@ -1,0 +1,21 @@
+---
+- name: Deploy keycloak systemd unit
+  ansible.builtin.template:
+    src: keycloak.service.j2
+    dest: "/etc/systemd/system/{{ keycloak_service_name }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart keycloak
+
+- name: Flush handlers so the unit and config are in place before (re)start
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start Keycloak service
+  ansible.builtin.systemd:
+    name: "{{ keycloak_service_name }}"
+    enabled: "{{ keycloak_service_enabled | bool }}"
+    state: "{{ keycloak_service_state }}"
+    daemon_reload: true

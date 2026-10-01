@@ -1,0 +1,34 @@
+---
+- name: Install Java (RedHat)
+  ansible.builtin.dnf:
+    name: "{{ keycloak_java_package | default(keycloak_java_packages[ansible_os_family], true) }}"
+    state: present
+  when:
+    - keycloak_install_java | bool
+    - ansible_os_family == "RedHat"
+
+- name: Install Java (Debian)
+  ansible.builtin.apt:
+    name: "{{ keycloak_java_package | default(keycloak_java_packages[ansible_os_family], true) }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when:
+    - keycloak_install_java | bool
+    - ansible_os_family == "Debian"
+
+- name: Install unarchive/tar dependencies (RedHat)
+  ansible.builtin.dnf:
+    name:
+      - tar
+      - gzip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Install unarchive/tar dependencies (Debian)
+  ansible.builtin.apt:
+    name:
+      - tar
+      - gzip
+    state: present
+  when: ansible_os_family == "Debian"

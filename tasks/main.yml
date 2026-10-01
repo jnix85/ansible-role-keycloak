@@ -1,0 +1,26 @@
+---
+- name: Assert supported OS family
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family in ['RedHat', 'Debian']
+    fail_msg: "This role supports RedHat and Debian family OSes only (found {{ ansible_os_family }})"
+
+- name: Install prerequisites
+  ansible.builtin.include_tasks: prereqs.yml
+
+- name: Create keycloak user and group
+  ansible.builtin.include_tasks: user.yml
+  when: keycloak_manage_user | bool
+
+- name: Download and install Keycloak
+  ansible.builtin.include_tasks: install.yml
+
+- name: Configure Keycloak
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Install systemd service
+  ansible.builtin.include_tasks: service.yml
+
+- name: Manage firewall
+  ansible.builtin.include_tasks: firewall.yml
+  when: keycloak_manage_firewall | bool

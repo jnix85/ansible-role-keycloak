@@ -1,0 +1,4 @@
+---
+keycloak_java_packages:
+  RedHat: java-17-openjdk-headless
+  Debian: openjdk-17-jre-headless

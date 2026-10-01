@@ -1,0 +1,20 @@
+---
+- name: Deploy keycloak.conf
+  ansible.builtin.template:
+    src: keycloak.conf.j2
+    dest: "{{ keycloak_config_dir }}/keycloak.conf"
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0640"
+  notify: restart keycloak
+
+- name: Build optimized Keycloak configuration
+  ansible.builtin.command: "{{ keycloak_symlink }}/bin/kc.sh build"
+  become: true
+  become_user: "{{ keycloak_user }}"
+  environment:
+    JAVA_OPTS: "{{ keycloak_java_opts }}"
+  when: keycloak_optimize_build | bool
+  register: keycloak_build
+  changed_when: "'Server configuration updated and persisted' in keycloak_build.stdout"
+  notify: restart keycloak

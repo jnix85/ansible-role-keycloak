@@ -1,0 +1,75 @@
+---
+# Version of Keycloak to install
+keycloak_version: "26.0.7"
+
+# Download/install layout
+keycloak_download_url: "https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz"
+keycloak_install_root: /opt
+keycloak_home: "{{ keycloak_install_root }}/keycloak-{{ keycloak_version }}"
+keycloak_symlink: "{{ keycloak_install_root }}/keycloak"
+keycloak_config_dir: "{{ keycloak_symlink }}/conf"
+keycloak_data_dir: "/var/lib/keycloak"
+keycloak_log_dir: "/var/log/keycloak"
+
+# OS user/group that runs Keycloak
+keycloak_user: keycloak
+keycloak_group: keycloak
+keycloak_user_home: "{{ keycloak_data_dir }}"
+keycloak_user_shell: /sbin/nologin
+keycloak_manage_user: true
+
+# Java (leave keycloak_java_package unset to use the OS-appropriate default
+# from vars/main.yml)
+keycloak_install_java: true
+keycloak_java_package: ~
+
+# Networking
+keycloak_http_enabled: true
+keycloak_http_port: 8080
+keycloak_https_port: 8443
+keycloak_bind_address: "0.0.0.0"
+keycloak_hostname: "{{ ansible_fqdn | default(ansible_default_ipv4.address) | default('localhost') }}"
+keycloak_hostname_strict: false
+keycloak_proxy_headers: "" # e.g. "xforwarded" or "forwarded" when behind a reverse proxy
+
+# TLS (leave keycloak_https_enabled false to terminate TLS at a reverse proxy instead)
+keycloak_https_enabled: false
+keycloak_https_certificate_file: ""
+keycloak_https_certificate_key_file: ""
+
+# Admin bootstrap account (only created on first start of a fresh install)
+keycloak_admin_user: admin
+keycloak_admin_password: "changeme"   # override in vault / group_vars
+
+# Run mode: start-dev (dev/test, in-memory H2, insecure defaults) or start (production)
+keycloak_start_mode: start
+keycloak_optimize_build: true
+
+# Database backend: dev-file (H2, default/dev only), postgres, mysql, mariadb, mssql, oracle
+keycloak_db: dev-file
+keycloak_db_url_host: 127.0.0.1
+keycloak_db_url_port: 5432
+keycloak_db_url_database: keycloak
+keycloak_db_username: keycloak
+keycloak_db_password: "changeme"   # override in vault / group_vars
+keycloak_db_schema: ""
+
+# Extra raw lines appended to keycloak.conf (list of strings)
+keycloak_extra_conf_lines: []
+
+# Extra environment variables for the systemd unit (dict)
+keycloak_extra_environment: {}
+
+# JVM heap options
+keycloak_java_opts: "-Xms512m -Xmx1024m"
+
+# systemd
+keycloak_service_name: keycloak
+keycloak_service_enabled: true
+keycloak_service_state: started
+
+# Firewall
+keycloak_manage_firewall: false
+
+# Remove downloaded archive after extraction
+keycloak_cleanup_archive: true

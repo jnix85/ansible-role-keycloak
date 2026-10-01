@@ -1,0 +1,58 @@
+---
+- name: Create data and log directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    mode: "0750"
+  loop:
+    - "{{ keycloak_install_root }}"
+    - "{{ keycloak_data_dir }}"
+    - "{{ keycloak_log_dir }}"
+
+- name: Check if this Keycloak version is already installed
+  ansible.builtin.stat:
+    path: "{{ keycloak_home }}"
+  register: keycloak_home_stat
+
+- name: Download Keycloak archive
+  ansible.builtin.get_url:
+    url: "{{ keycloak_download_url }}"
+    dest: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    mode: "0644"
+  register: keycloak_download
+  when: not keycloak_home_stat.stat.exists
+
+- name: Extract Keycloak archive
+  ansible.builtin.unarchive:
+    src: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: "{{ keycloak_install_root }}"
+    remote_src: true
+    creates: "{{ keycloak_home }}/bin/kc.sh"
+  when: not keycloak_home_stat.stat.exists
+
+- name: Remove downloaded archive
+  ansible.builtin.file:
+    path: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    state: absent
+  when:
+    - keycloak_cleanup_archive | bool
+    - keycloak_download is changed
+
+- name: Set ownership of Keycloak install directory
+  ansible.builtin.file:
+    path: "{{ keycloak_home }}"
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    recurse: true
+    state: directory
+
+- name: Symlink current Keycloak version
+  ansible.builtin.file:
+    src: "{{ keycloak_home }}"
+    dest: "{{ keycloak_symlink }}"
+    state: link
+    owner: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+  notify: restart keycloak

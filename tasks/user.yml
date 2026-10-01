@@ -1,0 +1,16 @@
+---
+- name: Create keycloak group
+  ansible.builtin.group:
+    name: "{{ keycloak_group }}"
+    system: true
+    state: present
+
+- name: Create keycloak user
+  ansible.builtin.user:
+    name: "{{ keycloak_user }}"
+    group: "{{ keycloak_group }}"
+    system: true
+    shell: "{{ keycloak_user_shell }}"
+    home: "{{ keycloak_user_home }}"
+    create_home: false
+    state: present

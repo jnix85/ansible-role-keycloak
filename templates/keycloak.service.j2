@@ -1,0 +1,36 @@
+## {{ ansible_managed }}
+[Unit]
+Description=Keycloak Identity and Access Management Server
+Wants=network-online.target
+After=network-online.target
+{% if keycloak_db != 'dev-file' %}
+After=postgresql.service mariadb.service mysql.service
+{% endif %}
+
+[Service]
+Type=simple
+User={{ keycloak_user }}
+Group={{ keycloak_group }}
+WorkingDirectory={{ keycloak_symlink }}
+Environment="JAVA_OPTS={{ keycloak_java_opts }}"
+Environment="KC_BOOTSTRAP_ADMIN_USERNAME={{ keycloak_admin_user }}"
+Environment="KC_BOOTSTRAP_ADMIN_PASSWORD={{ keycloak_admin_password }}"
+{% for key, value in keycloak_extra_environment.items() %}
+Environment="{{ key }}={{ value }}"
+{% endfor %}
+ExecStart={{ keycloak_symlink }}/bin/kc.sh {{ keycloak_start_mode }}{% if keycloak_optimize_build %} --optimized{% endif %}
+
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=300
+LimitNOFILE=102642
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{ keycloak_data_dir }} {{ keycloak_log_dir }} {{ keycloak_symlink }}
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

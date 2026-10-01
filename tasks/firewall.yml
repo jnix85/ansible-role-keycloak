@@ -1,0 +1,13 @@
+---
+- name: Open firewalld ports for Keycloak
+  ansible.posix.firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop:
+    - "{{ keycloak_http_port }}"
+    - "{{ keycloak_https_port }}"
+  when:
+    - ansible_os_family == "RedHat"
+    - keycloak_http_enabled or keycloak_https_enabled

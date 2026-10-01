@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  role_name: keycloak
+  author: jparks
+  description: Install and configure Keycloak (Quarkus distribution)
+  license: MIT
+  min_ansible_version: "2.14"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Debian
+      versions:
+        - bullseye
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+  galaxy_tags:
+    - keycloak
+    - sso
+    - identity
+    - java
+
+dependencies: []

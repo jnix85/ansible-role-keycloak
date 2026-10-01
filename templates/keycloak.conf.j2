@@ -1,0 +1,47 @@
+## {{ ansible_managed }}
+## Keycloak configuration - see https://www.keycloak.org/server/all-config
+
+# Database
+db={{ keycloak_db }}
+{% if keycloak_db != 'dev-file' %}
+db-url-host={{ keycloak_db_url_host }}
+db-url-port={{ keycloak_db_url_port }}
+db-url-database={{ keycloak_db_url_database }}
+db-username={{ keycloak_db_username }}
+db-password={{ keycloak_db_password }}
+{% if keycloak_db_schema %}
+db-schema={{ keycloak_db_schema }}
+{% endif %}
+{% endif %}
+
+# HTTP(S)
+http-enabled={{ keycloak_http_enabled | lower }}
+{% if keycloak_http_enabled %}
+http-host={{ keycloak_bind_address }}
+http-port={{ keycloak_http_port }}
+{% endif %}
+{% if keycloak_https_enabled %}
+https-port={{ keycloak_https_port }}
+https-certificate-file={{ keycloak_https_certificate_file }}
+https-certificate-key-file={{ keycloak_https_certificate_key_file }}
+{% endif %}
+
+# Hostname
+hostname={{ keycloak_hostname }}
+hostname-strict={{ keycloak_hostname_strict | lower }}
+
+{% if keycloak_proxy_headers %}
+# Reverse proxy
+proxy-headers={{ keycloak_proxy_headers }}
+{% endif %}
+
+# Logging
+log=console,file
+log-file={{ keycloak_log_dir }}/keycloak.log
+
+{% if keycloak_extra_conf_lines | length > 0 %}
+# Extra configuration
+{% for line in keycloak_extra_conf_lines %}
+{{ line }}
+{% endfor %}
+{% endif %}
